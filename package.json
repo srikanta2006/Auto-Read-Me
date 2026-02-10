@@ -2,9 +2,26 @@
   "name": "auto-readme-cli",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "description": "AI-powered README generator for technical projects.",
   "bin": {
     "gen-readme": "bin/index.js"
   },
+  "files": [
+    "bin/",
+    "lib/",
+    "templates/",
+    "package.json"
+  ],
+  "keywords": [
+    "readme",
+    "generator",
+    "ai",
+    "documentation",
+    "cli"
+  ],
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "boxen": "^7.1.1",
@@ -15,5 +32,8 @@
     "glob": "^10.3.10",
     "inquirer": "^9.2.12",
     "ora": "^7.0.1"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
   }
 }

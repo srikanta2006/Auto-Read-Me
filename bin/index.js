@@ -7,12 +7,14 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs';
 import boxen from 'boxen';
+import dns from 'dns';
 import { exec } from 'child_process';
 import Configstore from 'configstore';
 import { getProjectContext, generateReadmeContent } from '../lib/analyzer.js';
 
-// Initialize Configstore with the name from package.json
-const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url)));
+// Resolve package.json safely for global installation
+const pkgPath = new URL('../package.json', import.meta.url);
+const pkg = JSON.parse(fs.readFileSync(pkgPath));
 const config = new Configstore(pkg.name);
 
 const program = new Command();
@@ -24,7 +26,16 @@ const header = boxen(
 );
 
 /**
- * Handles API Key persistence and acquisition
+ * Resilience: Network Connectivity Check
+ */
+async function checkOnline() {
+  return new Promise((resolve) => {
+    dns.lookup('google.com', (err) => resolve(err === null));
+  });
+}
+
+/**
+ * Handles API Key persistence
  */
 async function ensureApiKey() {
   if (process.env.GEMINI_API_KEY) return process.env.GEMINI_API_KEY;
@@ -32,7 +43,7 @@ async function ensureApiKey() {
   let storedKey = config.get('apiKey');
   if (storedKey) return storedKey;
 
-  console.log(chalk.yellow('ℹ No API Key found. Let\'s set it up!'));
+  console.log(chalk.yellow('\nℹ No API Key found. Let\'s set it up!'));
   console.log(chalk.dim('Get one for free at: https://aistudio.google.com/app/apikey\n'));
 
   const { newKey } = await inquirer.prompt([
@@ -45,7 +56,7 @@ async function ensureApiKey() {
   ]);
 
   config.set('apiKey', newKey);
-  console.log(chalk.green('✔ Key saved globally! You won\'t need to enter it again.\n'));
+  console.log(chalk.green('✔ Key saved globally!\n'));
   return newKey;
 }
 
@@ -56,6 +67,12 @@ program
 
 program.action(async () => {
   console.log(header);
+
+  // 0. Resilience Check
+  if (!(await checkOnline())) {
+    console.log(chalk.red.bold('\n✖ Error: No internet connection. AI generation requires a network.\n'));
+    process.exit(1);
+  }
 
   const apiKey = await ensureApiKey();
 
@@ -77,10 +94,10 @@ program.action(async () => {
         message: 'Select the documentation blueprint:',
         default: context.suggestedType,
         choices: [
-          { name: `🌐 Full Comprehensive ${context.suggestedType === 'full' ? chalk.green('(Recommended)') : ''}`, value: 'full' },
-          { name: `🏢 Enterprise ${context.suggestedType === 'enterprise' ? chalk.green('(Recommended)') : ''}`, value: 'enterprise' },
-          { name: `⚡ Essential ${context.suggestedType === 'minimal' ? chalk.green('(Recommended)') : ''}`, value: 'minimal' },
-          { name: `📦 Library/NPM ${context.suggestedType === 'library' ? chalk.green('(Recommended)') : ''}`, value: 'library' }
+          { name: `🌐 Full Comprehensive  ${context.suggestedType === 'full' ? chalk.bold.green('[Recommended]') : chalk.dim('(Web Apps & Large Projects)')}`, value: 'full' },
+          { name: `🏢 Enterprise         ${context.suggestedType === 'enterprise' ? chalk.bold.green('[Recommended]') : chalk.dim('(Backends & Stacks)')}`, value: 'enterprise' },
+          { name: `⚡ Essential          ${context.suggestedType === 'minimal' ? chalk.bold.green('[Recommended]') : chalk.dim('(Small Scripts & Utils)')}`, value: 'minimal' },
+          { name: `📦 Library/NPM        ${context.suggestedType === 'library' ? chalk.bold.green('[Recommended]') : chalk.dim('(CLI Tools & Packages)')}`, value: 'library' }
         ]
       }
     ]);
@@ -88,7 +105,7 @@ program.action(async () => {
     // --- 3. GENERATION PHASE ---
     const genSpinner = ora(chalk.magenta('Synthesizing documentation...')).start();
     const markdown = await generateReadmeContent(apiKey, context, templateStyle);
-    
+
     // --- 4. SAVE LOGIC ---
     const filePath = './README.md';
     const exists = fs.existsSync(filePath);
@@ -127,7 +144,7 @@ program.action(async () => {
   }
 });
 
-// Config Command for User Management
+// Config Management
 program
   .command('config')
   .description('Manage global configuration')
@@ -137,7 +154,7 @@ program
       name: 'action',
       choices: ['Reset API Key', 'Show Config Path', 'Exit']
     }]);
-    
+
     if (action === 'Reset API Key') {
       config.delete('apiKey');
       console.log(chalk.green('✔ API Key removed.'));
