@@ -1,0 +1,19 @@
+{
+  "name": "auto-readme-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "gen-readme": "bin/index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "boxen": "^7.1.1",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "configstore": "^6.0.0",
+    "dotenv": "^16.3.1",
+    "glob": "^10.3.10",
+    "inquirer": "^9.2.12",
+    "ora": "^7.0.1"
+  }
+}
