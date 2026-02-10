@@ -8,13 +8,14 @@
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Downloads](https://img.shields.io/npm/dm/readme-genesis.svg)](https://www.npmjs.com/package/readme-genesis)
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture) • [Stack](#tech-stack)
+[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture) • [Contributing](#contributing)
 
 </div>
 
 ---
 
-## 💡 The Value Proposition
+<a name="features"></a>
+## 💡 Features & Value Proposition
 
 | **The Problem** | **The Genesis Solution** | **The Result** |
 | :--- | :--- | :--- |
@@ -24,6 +25,7 @@
 
 ---
 
+<a name="installation"></a>
 ## 📦 Installation
 
 ### Global Install (Recommended)
@@ -38,6 +40,7 @@ npx readme-genesis
 
 ---
 
+<a name="architecture"></a>
 ## 🏗️ Architecture
 
 ### Logic Flow
@@ -70,6 +73,7 @@ graph TD
 
 ---
 
+<a name="usage"></a>
 ## 🛠️ API & Usage
 
 ### Commands
@@ -93,6 +97,32 @@ graph TD
 | **CLI Framework** | Commander.js | Robust command & flag parsing. |
 | **UI/UX** | Inquirer & Chalk | Interactive, vibrant terminal interface. |
 | **Verification** | Vitest | Reliable unit testing for recommendation logic. |
+
+---
+
+---
+
+<a name="contributing"></a>
+## 🤝 Contributing
+
+Highly encouraged! We love pull requests from everyone.
+
+### 1. Setup & Cloning
+```bash
+git clone https://github.com/srikanta2006/Auto-Read-Me.git
+cd Auto-Read-Me
+npm install
+```
+
+### 2. Issues & Discussions
+- **Report Bugs**: Use the [Issue Tracker](https://github.com/srikanta2006/Auto-Read-Me/issues) to report reproducible bugs.
+- **Suggest Features**: Open an issue with the `enhancement` label.
+
+### 3. Pull Request Process
+1.  **Fork** the repo and create your branch from `main`.
+2.  If you've added code that should be tested, **add tests**.
+3.  Ensure the test suite passes (`npm test`).
+4.  Issue that **Pull Request**!
 
 ---
 
