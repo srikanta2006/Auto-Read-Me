@@ -12,7 +12,7 @@
 
 </div>
 
----
+## ✨ The Value Proposition
 
 ## 🔥 The Value Proposition
 
@@ -43,6 +43,8 @@ npx gen-readme
 ## 🏗️ Architecture & Logic Flow
 
 **README GENESIS PRO** operates as a smart CLI utility, orchestrating project analysis and AI-driven content generation.
+
+The **README GENESIS PRO** CLI orchestrates a sophisticated process, from user interaction to AI-driven content generation, ensuring a smooth and intelligent documentation workflow.
 
 ```mermaid
 graph TD
@@ -118,7 +120,7 @@ For a quick, one-time execution without installing globally:
 npx gen-readme
 ```
 
----
+**README GENESIS PRO** requires an API key from one of the supported AI providers. Keys can be set as environment variables or interactively configured upon first use.
 
 ## 💡 Usage
 
@@ -139,7 +141,9 @@ gen-readme
 *   **First Run:** If `GEMINI_API_KEY` is not found in your environment or stored globally, the CLI will interactively prompt you to enter it. The key will then be securely stored using `configstore` for future invocations.
 *   **Get Your Key:** Obtain a free Gemini API Key from [AI Studio](https://aistudio.google.com/app/apikey).
 
----
+```bash
+readme-genesis --help
+```
 
 ## 🛠️ Core Dependencies
 
@@ -180,3 +184,4 @@ Our vision for the future of `README GENESIS PRO`.
     *   [ ] Integration with CI/CD Pipelines for automated README updates
     *   [ ] Support for additional AI models and providers
     *   [ ] Web-based UI for advanced configuration and previews
+  
