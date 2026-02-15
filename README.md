@@ -12,7 +12,7 @@
 
 </div>
 
-## ✨ The Value Proposition
+## The Value Proposition
 
 ## 🔥 The Value Proposition
 
@@ -24,11 +24,13 @@ Tired of manual, time-consuming README creation? **README GENESIS PRO** automate
 
 ### Quick Start
 
+Jumpstart your project documentation immediately.
+
 ```bash
 npx gen-readme
 ```
 
----
+## Features
 
 ## ✨ Features
 
@@ -44,7 +46,7 @@ npx gen-readme
 
 **README GENESIS PRO** operates as a smart CLI utility, orchestrating project analysis and AI-driven content generation.
 
-The **README GENESIS PRO** CLI orchestrates a sophisticated process, from user interaction to AI-driven content generation, ensuring a smooth and intelligent documentation workflow.
+## Installation
 
 ```mermaid
 graph TD
@@ -77,7 +79,7 @@ graph TD
 | **Project Contextualization** | Analyzes local project files and structure to inform AI. | `lib/analyzer.js` (`getProjectContext`)                  |
 | **Network Resilience**   | Gracefully handles network availability.               | `dns` lookup before AI requests                         |
 
----
+Generate your project's README with a single command.
 
 ## 📁 Project Structure
 
@@ -98,7 +100,7 @@ A clear overview of the project's file and directory organization.
 └── auto-readme-cli-1.0.0.tgz  # Packaged CLI for distribution (example)
 ```
 
----
+This command will guide you through API key configuration, AI model selection, and provide options for customizing your README.
 
 ## 🚀 Installation
 
@@ -141,9 +143,15 @@ gen-readme
 *   **First Run:** If `GEMINI_API_KEY` is not found in your environment or stored globally, the CLI will interactively prompt you to enter it. The key will then be securely stored using `configstore` for future invocations.
 *   **Get Your Key:** Obtain a free Gemini API Key from [AI Studio](https://aistudio.google.com/app/apikey).
 
-```bash
-readme-genesis --help
-```
+| Pattern                  | Description                                                | Modules Involved                                   | Benefit                                      |
+| :----------------------- | :--------------------------------------------------------- | :------------------------------------------------- | :------------------------------------------- |
+| **Factory Method**       | Defines an interface for creating objects, but lets subclasses alter the type of objects that will be created. | `lib/factory.js`, `lib/providers/*`             | Decouples client code from concrete provider classes, enabling easy addition of new AI services. |
+| **Strategy**             | Defines a family of algorithms, encapsulates each one, and makes them interchangeable. | `lib/providers/base.js` and concrete providers | Allows easy switching between different AI service implementations (OpenAI, Gemini, Anthropic) at runtime. |
+| **Facade**               | Provides a simplified interface to a library, a framework, or any other complex set of classes. | `lib/analyzer.js` (orchestrates context gathering and content generation) | Simplifies interaction with the core logic, presenting a high-level API for README generation. |
+| **Command**              | Encapsulates a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations. | `commander` (CLI commands)                      | Organizes CLI actions, making the command structure clear and extensible. |
+| **Configuration Management** | Handles storing and retrieving application settings persistently. | `configstore`                                      | Manages API keys and provider preferences, ensuring a consistent user experience across sessions. |
+
+## Project Structure
 
 ## 🛠️ Core Dependencies
 
