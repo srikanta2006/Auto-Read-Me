@@ -1,12 +1,13 @@
 {
   "name": "readme-genesis",
-  "version": "1.0.1",
+  "version": "3.0.0",
   "type": "module",
   "scripts": {
     "test": "vitest run"
   },
   "description": "AI-powered README generator for technical projects.",
   "bin": {
+    "readme-genesis": "bin/index.js",
     "gen-readme": "bin/index.js"
   },
   "files": [
@@ -23,6 +24,7 @@
     "cli"
   ],
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@google/generative-ai": "^0.21.0",
     "boxen": "^7.1.1",
     "chalk": "^5.3.0",
@@ -31,6 +33,7 @@
     "dotenv": "^16.3.1",
     "glob": "^10.3.10",
     "inquirer": "^9.2.12",
+    "openai": "^6.22.0",
     "ora": "^7.0.1"
   },
   "devDependencies": {

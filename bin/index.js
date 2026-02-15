@@ -11,6 +11,7 @@ import dns from 'dns';
 import { exec } from 'child_process';
 import Configstore from 'configstore';
 import { getProjectContext, generateReadmeContent } from '../lib/analyzer.js';
+import { ProviderFactory } from '../lib/factory.js';
 
 // Resolve package.json safely for global installation
 const pkgPath = new URL('../package.json', import.meta.url);
@@ -20,7 +21,7 @@ const config = new Configstore(pkg.name);
 const program = new Command();
 
 const header = boxen(
-  chalk.bold.hex('#00ffee')('📦 README GENESIS PRO v2.5') + '\n' +
+  chalk.bold.hex('#00ffee')('📦 README GENESIS PRO v3.0') + '\n' +
   chalk.dim('Smart Context-Aware Documentation Engine'),
   { padding: 1, margin: 1, borderStyle: 'double', borderColor: 'cyan', textAlign: 'center' }
 );
@@ -35,34 +36,53 @@ async function checkOnline() {
 }
 
 /**
- * Handles API Key persistence
+ * Handles Provider & API Key persistence
  */
-async function ensureApiKey() {
-  if (process.env.GEMINI_API_KEY) return process.env.GEMINI_API_KEY;
+async function ensureProviderConfig() {
+  // Check environment variables first
+  if (process.env.GEMINI_API_KEY) return { provider: 'gemini', apiKey: process.env.GEMINI_API_KEY };
+  if (process.env.OPENAI_API_KEY) return { provider: 'openai', apiKey: process.env.OPENAI_API_KEY };
+  if (process.env.ANTHROPIC_API_KEY) return { provider: 'anthropic', apiKey: process.env.ANTHROPIC_API_KEY };
 
-  let storedKey = config.get('apiKey');
-  if (storedKey) return storedKey;
+  // Check stored config
+  let storedConfig = config.get('providerConfig');
+  if (storedConfig && storedConfig.apiKey) return storedConfig;
 
   console.log(chalk.yellow('\nℹ No API Key found. Let\'s set it up!'));
-  console.log(chalk.dim('Get one for free at: https://aistudio.google.com/app/apikey\n'));
+  console.log(chalk.dim('Supported: Gemini (Google), OpenAI (GPT), Anthropic (Claude)\n'));
 
-  const { newKey } = await inquirer.prompt([
+  const { apiKey } = await inquirer.prompt([
     {
       type: 'password',
-      name: 'newKey',
-      message: '🔑 Enter your Gemini API Key:',
+      name: 'apiKey',
+      message: '🔑 Enter your API Key:',
       validate: (input) => input.length > 10 || 'Please enter a valid API key.'
     }
   ]);
 
-  config.set('apiKey', newKey);
-  console.log(chalk.green('✔ Key saved globally!\n'));
-  return newKey;
+  const spinner = ora('Verifying and detecting provider...').start();
+
+  const provider = ProviderFactory.detectProvider(apiKey);
+  const aiInstance = ProviderFactory.get(provider, apiKey);
+  const isValid = await aiInstance.validate();
+
+  if (!isValid) {
+    spinner.fail(chalk.red(`Could not validate key for detected provider: ${chalk.bold(provider)}`));
+    console.log(chalk.yellow("Tip: Check your key or try again."));
+    process.exit(1);
+  }
+
+  spinner.succeed(chalk.green(`Verified! Detected Provider: ${chalk.bold(provider.toUpperCase())}`));
+
+  const newConfig = { provider, apiKey };
+  config.set('providerConfig', newConfig);
+
+  return newConfig;
 }
 
 program
   .name('gen-readme')
-  .description('AI-powered README generator')
+  .description('AI-powered README generator (Multi-Provider)')
   .version(pkg.version);
 
 program.action(async () => {
@@ -74,7 +94,7 @@ program.action(async () => {
     process.exit(1);
   }
 
-  const apiKey = await ensureApiKey();
+  const { provider, apiKey, defaultModel } = await ensureProviderConfig();
 
   try {
     // --- 1. ANALYSIS PHASE ---
@@ -86,7 +106,53 @@ program.action(async () => {
     if (context.assets.primaryPath) console.log(chalk.cyan.dim(`   • Found asset: ${context.assets.primaryPath}`));
     console.log('');
 
-    // --- 2. TEMPLATE SELECTION ---
+    // --- 2. MODEL SELECTION ---
+    let selectedModel = defaultModel;
+
+    // Check if the default model is still valid for the current provider
+    if (selectedModel) {
+      console.log(chalk.dim(`⚡ Using default model: ${chalk.bold(selectedModel)}`));
+    } else {
+      const fetchSpinner = ora('Fetching available models...').start();
+      try {
+        const aiInstance = ProviderFactory.get(provider, apiKey);
+        const models = await aiInstance.listModels();
+        fetchSpinner.stop();
+
+        const response = await inquirer.prompt([
+          {
+            type: 'list',
+            name: 'model',
+            message: `Select ${chalk.bold(provider)} Model:`,
+            choices: models
+          }
+        ]);
+        selectedModel = response.model;
+
+        // Ask to save as default
+        const { saveDefault } = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'saveDefault',
+            message: 'Save this as your default model?',
+            default: false
+          }
+        ]);
+
+        if (saveDefault) {
+          const currentConfig = config.get('providerConfig') || {};
+          config.set('providerConfig', { ...currentConfig, defaultModel: selectedModel });
+          console.log(chalk.green('✔ Default model saved.'));
+        }
+
+      } catch (e) {
+        fetchSpinner.fail('Failed to fetch models.');
+        console.error(e);
+        process.exit(1);
+      }
+    }
+
+    // --- 3. TEMPLATE SELECTION ---
     const { templateStyle } = await inquirer.prompt([
       {
         type: 'list',
@@ -102,11 +168,11 @@ program.action(async () => {
       }
     ]);
 
-    // --- 3. GENERATION PHASE ---
-    const genSpinner = ora(chalk.magenta('Synthesizing documentation...')).start();
-    const markdown = await generateReadmeContent(apiKey, context, templateStyle);
+    // --- 4. GENERATION PHASE ---
+    const genSpinner = ora(chalk.magenta(`Synthesizing documentation with ${provider}...`)).start();
+    const markdown = await generateReadmeContent(apiKey, context, templateStyle, provider, selectedModel);
 
-    // --- 4. SAVE LOGIC ---
+    // --- 5. SAVE LOGIC ---
     const filePath = './README.md';
     const exists = fs.existsSync(filePath);
     fs.writeFileSync(filePath, markdown);
@@ -117,7 +183,7 @@ program.action(async () => {
       { padding: 1, borderStyle: 'round', borderColor: exists ? 'yellow' : 'green' }
     ));
 
-    // --- 5. POST-GENERATION ACTIONS ---
+    // --- 6. POST-GENERATION ACTIONS ---
     const { next } = await inquirer.prompt([
       {
         type: 'list',
@@ -152,14 +218,23 @@ program
     const { action } = await inquirer.prompt([{
       type: 'list',
       name: 'action',
-      choices: ['Reset API Key', 'Show Config Path', 'Exit']
+      choices: ['Reset API Key & Provider', 'Clear Default Model', 'Show Config', 'Exit']
     }]);
 
-    if (action === 'Reset API Key') {
-      config.delete('apiKey');
-      console.log(chalk.green('✔ API Key removed.'));
-    } else if (action === 'Show Config Path') {
+    if (action === 'Reset API Key & Provider') {
+      config.delete('providerConfig');
+      config.delete('apiKey'); // cleanup old legacy key
+      console.log(chalk.green('✔ Configuration cleared.'));
+    } else if (action === 'Clear Default Model') {
+      const current = config.get('providerConfig');
+      if (current) {
+        delete current.defaultModel;
+        config.set('providerConfig', current);
+        console.log(chalk.green('✔ Default model cleared.'));
+      }
+    } else if (action === 'Show Config') {
       console.log(chalk.cyan(`Config stored at: ${config.path}`));
+      console.log(config.get('providerConfig') || "No config set.");
     }
   });
 
