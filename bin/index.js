@@ -153,7 +153,7 @@ program.action(async () => {
     }
 
     // --- 3. TEMPLATE SELECTION ---
-    const { templateStyle } = await inquirer.prompt([
+    const { templateStyle, authorPersona, projectHook } = await inquirer.prompt([
       {
         type: 'list',
         name: 'templateStyle',
@@ -165,12 +165,29 @@ program.action(async () => {
           { name: `⚡ Essential          ${context.suggestedType === 'minimal' ? chalk.bold.green('[Recommended]') : chalk.dim('(Small Scripts & Utils)')}`, value: 'minimal' },
           { name: `📦 Library/NPM        ${context.suggestedType === 'library' ? chalk.bold.green('[Recommended]') : chalk.dim('(CLI Tools & Packages)')}`, value: 'library' }
         ]
+      },
+      {
+        type: 'list',
+        name: 'authorPersona',
+        message: 'Who is the primary audience/author?',
+        choices: [
+          { name: '🎓 Student / Portfolio (Educational, enthusiastic)', value: 'student' },
+          { name: '🧙‍♂️ Senior Engineer (Concise, architectural, robust)', value: 'senior' },
+          { name: '🚀 Startup / Product (Value-focused, user-centric)', value: 'startup' },
+          { name: '🤝 Open Source Maintainer (Community-focused, contribution-ready)', value: 'opensource' }
+        ]
+      },
+      {
+        type: 'input',
+        name: 'projectHook',
+        message: 'What is the core "Hook" or "Vision" of this project? (Optional, 1 sentence)',
+        default: ""
       }
     ]);
 
     // --- 4. GENERATION PHASE ---
     const genSpinner = ora(chalk.magenta(`Synthesizing documentation with ${provider}...`)).start();
-    const markdown = await generateReadmeContent(apiKey, context, templateStyle, provider, selectedModel);
+    const markdown = await generateReadmeContent(apiKey, context, templateStyle, provider, selectedModel, { authorPersona, projectHook });
 
     // --- 5. SAVE LOGIC ---
     const filePath = './README.md';
