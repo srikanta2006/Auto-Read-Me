@@ -1,182 +1,187 @@
 <div align="center">
 
-# 🚀 README GENESIS PRO
+# README GENESIS PRO
 
-Intelligent Context-Aware README Generation for Technical Projects.
+### AI-Powered Documentation Engine for Technical Projects
 
 [![Node.js Version](https://img.shields.io/badge/node->=18-green)](https://nodejs.org/)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-3.0.0-orange)](package.json)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.1-orange)](package.json)
 
-[Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture)
+[✨ Features](#-features) • [🚀 Installation](#-installation) • [💡 Usage](#-usage) • [🏗️ Architecture](#-architecture)
 
 </div>
 
 ## ✨ The Value Proposition
 
-Tired of manual, time-consuming README creation? **README GENESIS PRO** automates the process, delivering polished, context-aware documentation with minimal effort.
+## 🔥 The Value Proposition
 
-*   **⚡️ Instant Documentation**: Generate comprehensive `README.md` files in seconds, freeing up valuable development time.
-*   **🧠 Context-Aware AI**: Leverages cutting-edge AI (Gemini, OpenAI, Anthropic) to analyze your project's DNA and craft relevant, high-quality content.
-*   **⚙️ Seamless Integration**: A powerful CLI tool designed for developers, fitting perfectly into your existing workflow.
+Tired of manual, time-consuming README creation? **README GENESIS PRO** automates the documentation process, delivering high-quality, context-aware `README.md` files for your technical projects.
+
+*   **Problem:** Crafting comprehensive, up-to-date READMEs is a repetitive chore, often leading to inconsistent or outdated documentation.
+*   **Solution:** Leverage cutting-edge AI to instantly analyze your project's DNA and generate a professional, structured `README.md`.
+*   **Benefit:** Save hours of development time, ensure documentation consistency, and enhance project discoverability with an always-fresh README.
 
 ### Quick Start
 
 ```bash
-npx readme-genesis
+npx gen-readme
 ```
 
 ---
 
-## 🏛️ Architecture
+## ✨ Features
 
-### Logic Flow
+*   **AI-Driven Content Generation:** Utilizes advanced AI (Gemini 2.5 Flash) to understand your project and draft relevant documentation.
+*   **Context-Aware Analysis:** Scans your project's structure, dependencies, and code snippets to generate highly pertinent content.
+*   **Interactive Setup:** Guides you through API key configuration, storing it securely for future use.
+*   **CLI-First Experience:** Seamless integration into your development workflow via a powerful command-line interface.
+*   **Global Configuration:** Persists your API key locally, so you only need to set it up once.
+
+---
+
+## 🏗️ Architecture & Logic Flow
+
+**README GENESIS PRO** operates as a smart CLI utility, orchestrating project analysis and AI-driven content generation.
 
 The **README GENESIS PRO** CLI orchestrates a sophisticated process, from user interaction to AI-driven content generation, ensuring a smooth and intelligent documentation workflow.
 
 ```mermaid
 graph TD
-    A[User Input] --> B(CLI Interface: `bin/index.js`)
-    B --> C{Network Check: dns.lookup}
-    B --> D[Configstore: API Key & Settings]
-    D -- Persists --> B
-    C -- Online? --> B
+    A[Start CLI: gen-readme] --> B{Check Network Connectivity?};
+    B -- Online --> C[Ensure Gemini API Key];
+    B -- Offline --> H[Exit: Network Error];
 
-    subgraph Core Logic
-        B --> E(Project Analyzer: `lib/analyzer.js`)
-        E --> F[File System Scanner]
-        E --> G[Context Extractor: Code & Structure]
-        G -- Project Context --> H[Provider Factory: `lib/factory.js`]
-    end
+    C -- Key Found/Entered --> D[Project Context Analyzer: Get Code & Structure];
+    C -- No Key --> I[Prompt User for API Key];
+    I --> C;
 
-    subgraph AI Providers
-        H --> I(OpenAI API: `lib/providers/openai.js`)
-        H --> J(Gemini API: `lib/providers/gemini.js`)
-        H --> K(Anthropic API: `lib/providers/anthropic.js`)
-    end
+    D --> E[AI Content Generator: Gemini 2.5 Flash];
+    E --> F[Format & Output README.md];
+    F --> G[End];
 
-    I,J,K -- AI-Generated Content --> L[Content Generator: `lib/analyzer.js`]
-    L --> M[Template Formatter: `templates/*`]
-    M -- Formatted README --> B
-    B --> N[Output README.md]
-    N --> O[User (New README!)]
+    style A fill:#f9f,stroke:#333,stroke-width:2px;
+    style G fill:#f9f,stroke:#333,stroke-width:2px;
+    style C fill:#ccf,stroke:#333,stroke-width:2px;
+    style D fill:#bbf,stroke:#333,stroke-width:2px;
+    style E fill:#aaf,stroke:#333,stroke-width:2px;
 ```
 
-### Design Patterns
+### Architectural Patterns
 
-| Pattern                  | Description                                                                 | Implementation                                                                     |
-| :----------------------- | :-------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| **Factory Method**       | Defines an interface for creating an object, but lets subclasses alter the type of objects that will be created. | `ProviderFactory` (`lib/factory.js`) abstracts AI provider instantiation.          |
-| **Strategy**             | Defines a family of algorithms, encapsulates each one, and makes them interchangeable. | AI Provider modules (`lib/providers/*`) implement a common `BaseProvider` interface. |
-| **Configuration Mgmt.**  | Handles external configuration settings to control application behavior.    | `Configstore` and `dotenv` for API keys and user preferences.                      |
-| **CLI Interface**        | Provides an intuitive command-line experience for user interaction.         | `Commander.js`, `Inquirer.js`, `Chalk`, `Ora` for robust CLI.                      |
+| Pattern                  | Description                                            | Implementation Detail                                   |
+| :----------------------- | :----------------------------------------------------- | :------------------------------------------------------ |
+| **CLI Application**      | User interaction via command-line interface.           | `commander`, `inquirer`, `chalk`, `ora`, `boxen`        |
+| **Configuration Mgmt.**  | Centralized and persistent storage of settings.        | `dotenv`, `configstore` for API keys and global settings |
+| **AI Integration**       | Leverages external AI models for core functionality.   | `gemini-2.5-flash` via `lib/analyzer.js`                 |
+| **Project Contextualization** | Analyzes local project files and structure to inform AI. | `lib/analyzer.js` (`getProjectContext`)                  |
+| **Network Resilience**   | Gracefully handles network availability.               | `dns` lookup before AI requests                         |
 
 ---
 
-## 🌳 Project Structure
+## 📁 Project Structure
 
-A high-fidelity overview of the project's directory and file organization.
+A clear overview of the project's file and directory organization.
 
 ```
 .
-├── bin/
-│   └── index.js             # 🚀 CLI Entry Point & Orchestrator
-├── lib/
-│   ├── analyzer.js          # 🧠 Core Logic: Project context analysis & content generation
-│   ├── analyzer.test.js     # Unit tests for the analyzer
-│   ├── factory.js           # 🏭 AI Provider Factory
-│   └── providers/           # AI API Integration Modules
-│       ├── anthropic.js     # Anthropic (Claude) API client
-│       ├── base.js          # Base class/interface for AI providers
-│       ├── gemini.js        # Google Gemini API client
-│       └── openai.js        # OpenAI (GPT) API client
-├── templates/
-│   └── minimal.js           # Default README template (output structure)
-├── test/
-│   └── manual_verify.js     # Manual verification scripts
-├── temp_test/               # Temporary test files/workspace
-├── auto-readme-cli-1.0.0.tgz# Packed CLI archive (distribution)
-├── demo_terminal.html       # Web-based terminal demo (potential)
-├── package.json             # Project metadata & dependencies
-└── README.md                # This documentation
+├── templates/                 # Directory for different README generation templates
+│   └── minimal.js             # Example minimal README template
+├── lib/                       # Core logic and utility modules
+│   ├── config.js              # Centralized configuration (e.g., AI model name)
+│   ├── analyzer.test.js       # Unit tests for the project analyzer
+│   └── analyzer.js            # Core logic for project analysis and AI interaction
+├── bin/                       # Executable scripts
+│   └── index.js               # CLI entry point for the 'gen-readme' command
+├── README.md                  # This documentation file
+├── package.json               # Project metadata, scripts, and dependencies
+└── auto-readme-cli-1.0.0.tgz  # Packaged CLI for distribution (example)
 ```
 
 ---
 
-## 🛠️ Setup & Usage
+## 🚀 Installation
 
-### Installation
+Install `README GENESIS PRO` globally to use the `gen-readme` command anywhere on your system.
 
-Install `readme-genesis` globally using npm for direct access from your terminal:
+### Global Installation
 
 ```bash
 npm install -g readme-genesis
+# OR
+yarn global add readme-genesis
 ```
 
-Alternatively, use `npx` for a one-time execution without global installation:
+### Using with `npx` (No Global Install)
+
+For a quick, one-time execution without installing globally:
 
 ```bash
-npx readme-genesis
+npx gen-readme
 ```
-
-### Configuration
 
 **README GENESIS PRO** requires an API key from one of the supported AI providers. Keys can be set as environment variables or interactively configured upon first use.
 
-| Environment Variable    | Purpose                                 | Precedence   |
-| :---------------------- | :-------------------------------------- | :----------- |
-| `GEMINI_API_KEY`        | API Key for Google Gemini.              | Highest      |
-| `OPENAI_API_KEY`        | API Key for OpenAI (GPT models).        | Medium       |
-| `ANTHROPIC_API_KEY`     | API Key for Anthropic (Claude models).  | Low          |
-| `README_GENESIS_PROVIDER` | (Optional) Explicitly select AI provider (e.g., `openai`). | Overrides interactive prompt if set. |
+## 💡 Usage
 
-**Example `.env` file:**
-```ini
-# At least one API key is required
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-# OPENAI_API_KEY=YOUR_OPENAI_API_KEY
-# ANTHROPIC_API_KEY=YOUR_ANTHROPIC_API_KEY
-```
-
-### CLI Usage
-
-Run `readme-genesis` in your project's root directory:
+Run the `gen-readme` command in the root of your technical project.
 
 ```bash
-readme-genesis
+gen-readme
 ```
 
-Follow the interactive prompts to generate your README.
+### API Key Configuration
 
-For help and available options:
+`README GENESIS PRO` requires a Google Gemini API Key.
+
+| Variable           | Type                  | Required | Description                                                                                             |
+| :----------------- | :-------------------- | :------- | :------------------------------------------------------------------------------------------------------ |
+| `GEMINI_API_KEY`   | Environment Variable  | Yes      | Your Google Gemini API Key. Can be set in your `.env` file or entered interactively on first run.       |
+
+*   **First Run:** If `GEMINI_API_KEY` is not found in your environment or stored globally, the CLI will interactively prompt you to enter it. The key will then be securely stored using `configstore` for future invocations.
+*   **Get Your Key:** Obtain a free Gemini API Key from [AI Studio](https://aistudio.google.com/app/apikey).
 
 ```bash
 readme-genesis --help
 ```
 
-### Key Dependencies
+## 🛠️ Core Dependencies
 
-| Tool         | Purpose                                     |
-| :----------- | :------------------------------------------ |
-| `commander`  | Robust command-line interface framework.    |
-| `inquirer`   | Interactive command-line prompts.           |
-| `chalk`      | Terminal string styling.                    |
-| `ora`        | Elegant terminal spinner for loading states.|
-| `boxen`      | Create boxes in the terminal.               |
-| `configstore`| Persistent user configuration storage.      |
-| `dotenv`     | Loads environment variables from a `.env` file.|
+Key third-party tools and libraries that power `README GENESIS PRO`.
+
+| Tool            | Purpose                                       | Version (min) |
+| :-------------- | :-------------------------------------------- | :------------ |
+| `commander`     | Elegant command-line interfaces.             | `>=9.0.0`     |
+| `inquirer`      | Interactive prompts for user input.           | `>=8.0.0`     |
+| `chalk`         | Terminal string styling.                      | `>=5.0.0`     |
+| `ora`           | Elegant terminal spinner.                     | `>=6.0.0`     |
+| `boxen`         | Draw boxes in the terminal.                   | `>=7.0.0`     |
+| `configstore`   | Persist user configuration.                   | `>=6.0.0`     |
+| `dotenv`        | Load environment variables from `.env` file.  | `>=16.0.0`    |
+| `dns` (Node.js) | Network connectivity checks.                  | `Built-in`    |
+| `fs` (Node.js)  | File system operations.                       | `Built-in`    |
+| `child_process` | Spawning child processes (e.g., for analysis).| `Built-in`    |
 
 ---
 
-## 🎯 Roadmap
+## 🛣️ Roadmap
 
-Our vision for **README GENESIS PRO** is continuous enhancement and expansion.
+Our vision for the future of `README GENESIS PRO`.
 
-- [x] AI Provider Integration (Gemini, OpenAI, Anthropic)
-- [x] Basic Project Context Analysis (File structure, `package.json`)
-- [x] Interactive CLI for setup and generation
-- [ ] **Enhanced Template Customization:** Allow users to define/select advanced output templates.
-- [ ] **Multi-file/Directory README Generation:** Support for generating documentation across sub-projects.
-- [ ] **Web UI for README Generation:** A user-friendly web interface for non-CLI users.
-- [ ] **Git Integration:** Pre-commit hooks or automated generation on pushes.
-- [ ] **Language Support:** Generate READMEs in multiple human languages.
+*   **Alpha (Current)**
+    *   [x] Basic Project Structure Analysis
+    *   [x] AI-Powered Content Generation (Gemini 2.5 Flash)
+    *   [x] Interactive API Key Management & Persistence
+    *   [x] Basic Network Connectivity Check
+*   **Beta (Next Steps)**
+    *   [ ] Support for Custom README Templates (e.g., using EJS, Handlebars)
+    *   [ ] Integration with Git (analyzing commit history for more context)
+    *   [ ] Advanced Project Type Detection (e.g., web app, library, microservice)
+    *   [ ] Command-line Options for Customization (e.g., `--output`, `--template`)
+    *   [ ] Comprehensive Error Handling and User Feedback
+*   **Future (Beyond Beta)**
+    *   [ ] Multi-language README Generation
+    *   [ ] Integration with CI/CD Pipelines for automated README updates
+    *   [ ] Support for additional AI models and providers
+    *   [ ] Web-based UI for advanced configuration and previews
+  
