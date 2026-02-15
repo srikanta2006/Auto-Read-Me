@@ -89,19 +89,6 @@ graph TD
 
 ---
 
-## ⚡ Tech Stack
-
-| Component | Tooling | Purpose |
-| :--- | :--- | :--- |
-| **Logic Engine** | Google Gemini 1.5 Flash | High-fidelity architectural analysis. |
-| **CLI Framework** | Commander.js | Robust command & flag parsing. |
-| **UI/UX** | Inquirer & Chalk | Interactive, vibrant terminal interface. |
-| **Verification** | Vitest | Reliable unit testing for recommendation logic. |
-
----
-
----
-
 <a name="contributing"></a>
 ## 🤝 Contributing
 

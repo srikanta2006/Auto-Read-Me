@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README Genesis - CLI Demo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Fira Code', monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .terminal-container {
+            width: 800px;
+            background: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .terminal-header {
+            background: #334155;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .terminal-title {
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 14px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .terminal-body {
+            padding: 24px;
+            height: 450px;
+            overflow-y: auto;
+            font-size: 16px;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .prompt { color: #38bdf8; font-weight: bold; margin-right: 10px; }
+        .command { color: #fbbf24; }
+        .output { color: #94a3b8; margin-top: 4px; display: block; }
+        .success { color: #4ade80; }
+        .highlight { color: #f472b6; }
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1.2em;
+            background: #38bdf8;
+            vertical-align: middle;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .step { margin-bottom: 20px; display: none; }
+        .active { display: block; }
+
+        .spinner {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-container">
+        <div class="terminal-header">
+            <div class="dot dot-red"></div>
+            <div class="dot dot-yellow"></div>
+            <div class="dot dot-green"></div>
+            <div class="terminal-title">bash — readme-genesis</div>
+        </div>
+        <div class="terminal-body" id="terminal-body">
+            <div id="content"></div>
+            <span class="cursor" id="cursor"></span>
+        </div>
+    </div>
+
+    <script>
+        const terminalBody = document.getElementById('terminal-body');
+        const content = document.getElementById('content');
+        const cursor = document.getElementById('cursor');
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function typeWriter(text, element, speed = 40) {
+            for (let i = 0; i < text.length; i++) {
+                element.innerHTML += text.charAt(i);
+                terminalBody.scrollTop = terminalBody.scrollHeight;
+                await sleep(speed + Math.random() * 40);
+            }
+        }
+
+        async function runDemo() {
+            await sleep(1000);
+
+            // Step 1: Installation
+            const step1 = document.createElement('div');
+            step1.className = 'step active';
+            content.appendChild(step1);
+            
+            const prompt1 = document.createElement('span');
+            prompt1.className = 'prompt';
+            prompt1.innerText = '$';
+            step1.appendChild(prompt1);
+
+            const cmd1 = document.createElement('span');
+            cmd1.className = 'command';
+            step1.appendChild(cmd1);
+            await typeWriter('npm install -g readme-genesis', cmd1);
+            
+            await sleep(500);
+            const output1 = document.createElement('div');
+            output1.className = 'output';
+            output1.innerHTML = 'added <span class="success">42 packages</span>, and audited 43 packages in 3s<br><br><span class="success">✔</span> Global installation complete.<br>Run <span class="highlight">gen-readme</span> to start.';
+            step1.appendChild(output1);
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+
+            await sleep(1500);
+
+            // Step 2: Running the tool
+            const step2 = document.createElement('div');
+            step2.className = 'step active';
+            content.appendChild(step2);
+
+            const prompt2 = document.createElement('span');
+            prompt2.className = 'prompt';
+            prompt2.innerText = '$';
+            step2.appendChild(prompt2);
+
+            const cmd2 = document.createElement('span');
+            cmd2.className = 'command';
+            step2.appendChild(cmd2);
+            await typeWriter('gen-readme', cmd2);
+
+            await sleep(800);
+            const output2 = document.createElement('div');
+            output2.className = 'output';
+            output2.innerHTML = '<br> <span class="success">🚀 README Genesis v1.0.1</span><br><br>';
+            step2.appendChild(output2);
+
+            const question1 = document.createElement('div');
+            question1.className = 'output';
+            question1.innerHTML = '<span class="prompt">?</span> Project Name: <span class="command">Auto-Read-Me</span><br>';
+            step2.appendChild(question1);
+            await sleep(1000);
+
+            const question2 = document.createElement('div');
+            question2.className = 'output';
+            question2.innerHTML = '<span class="prompt">?</span> Choose a framework: <span class="command">Node.js</span><br>';
+            step2.appendChild(question2);
+            await sleep(800);
+
+            const status = document.createElement('div');
+            status.className = 'output';
+            status.innerHTML = '<span class="spinner">⠋</span> Analyzing project DNA...';
+            step2.appendChild(status);
+            
+            const spinners = ['⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+            let s = 0;
+            const spinInterval = setInterval(() => {
+                status.querySelector('.spinner').innerText = spinners[s % spinners.length];
+                s++;
+            }, 80);
+
+            await sleep(2000);
+            clearInterval(spinInterval);
+            status.innerHTML = '<span class="success">✔</span> Project DNA Scanned (Detected: Node.js, AI Core)<br><br>';
+
+            const status2 = document.createElement('div');
+            status2.className = 'output';
+            status2.innerHTML = '<span class="spinner">⠋</span> Synthesizing README using <span class="highlight">Gemini AI</span>...';
+            step2.appendChild(status2);
+            
+            let s2 = 0;
+            const spinInterval2 = setInterval(() => {
+                status2.querySelector('.spinner').innerText = spinners[s2 % spinners.length];
+                s2++;
+            }, 80);
+
+            await sleep(3000);
+            clearInterval(spinInterval2);
+            status2.innerHTML = '<span class="success">✔</span> AI Synthesis Complete.<br>';
+
+            await sleep(1000);
+            const final = document.createElement('div');
+            final.className = 'output';
+            final.innerHTML = '<br><span class="success">✨ SUCCESS!</span> README.md has been generated with professional structure, Mermaid diagrams, and high-fidelity project overview.<br><br><span class="prompt">$</span> <span class="cursor"></span>';
+            step2.appendChild(final);
+            cursor.style.display = 'none';
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+        }
+
+        runDemo();
+    </script>
+</body>
+</html>
