@@ -3,7 +3,8 @@
   "version": "3.0.0",
   "type": "module",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:suite": "node test/full_suite.js"
   },
   "description": "AI-powered README generator for technical projects.",
   "bin": {
