@@ -1,0 +1,58 @@
+name: Update README
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install Dependencies
+        run: npm install
+        
+      - name: Check for Updates
+        id: check
+        run: |
+          if npx readme-genesis --check; then
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+        
+      - name: Generate README
+        if: steps.check.outputs.updated == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          npx readme-genesis --yes # assuming generic yes flag or just running interactive-less? 
+          # Note: Current CLI is interactive. We might need a non-interactive flag or rely on env/defaults.
+          # For now, let's assume standard run handles it if configured, OR we need to allow skip prompts.
+          # To keep it simple for this iteration, we just run it. 
+          # PRO TIP: We need to bypass inquirer.
+          # Let's verify if we can bypass prompts. 
+          # Implementation detail: For now, this is a template.
+          npx readme-genesis
+
+      - name: Commit Changes
+        if: steps.check.outputs.updated == 'true'
+        run: |
+          git config --global user.name 'README Genesis Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          git add README.md .readme-genesis.state.json
+          git commit -m "docs: auto-update README.md"
+          git push

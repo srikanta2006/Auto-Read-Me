@@ -1,4 +1,5 @@
-import { getProjectContext, generateReadmeContent } from '../lib/analyzer.js';
+import { getProjectContext, generateReadmeContent, detectProjectType } from '../lib/analyzer.js';
+import * as State from '../lib/state.js';
 import { ProviderFactory } from '../lib/factory.js';
 import fs from 'fs';
 import path from 'path';
@@ -82,6 +83,28 @@ async function runTests() {
         assert.strictEqual(context.suggestedType, 'library', "Should suggest 'library' type for this CLI project");
     });
 
+    // --- 1.5 PROJECT TYPE LOGIC SUB-TESTS ---
+    await runTest("Type Detection: Logic Unit Tests", async () => {
+        // Mobile
+        assert.strictEqual(detectProjectType({ 'react-native': '1.0' }, []), 'mobile');
+        assert.strictEqual(detectProjectType({}, ['pubspec.yaml']), 'mobile');
+
+        // WebApp
+        assert.strictEqual(detectProjectType({ 'react': '1.0', 'react-dom': '1.0' }, []), 'webapp');
+        assert.strictEqual(detectProjectType({ 'next': '13.0' }, []), 'webapp');
+
+        // Microservice
+        assert.strictEqual(detectProjectType({ 'express': '1.0', 'grpc': '1.0' }, []), 'microservice');
+        assert.strictEqual(detectProjectType({ 'fastify': '1.0' }, ['Dockerfile']), 'microservice');
+
+        // Backend
+        assert.strictEqual(detectProjectType({ 'express': '1.0' }, []), 'backend');
+        assert.strictEqual(detectProjectType({}, ['go.mod']), 'backend');
+
+        // Library
+        assert.strictEqual(detectProjectType({ 'commander': '1.0' }, []), 'library');
+    });
+
     // --- 2. ASSET & CONFIG TESTS ---
 
     await runTest("Assets: Readme Existence", async () => {
@@ -90,6 +113,21 @@ async function runTests() {
         // The context.structure is a list of files strings
         // NOTE: structure is a joined string in the actual implementation return object: allFiles.slice(0, 100).join('\n')
         assert.ok(context.structure.includes('README.md'), "Structure should list README.md");
+    });
+
+    // --- 3. STATE MANAGEMENT TESTS ---
+    await runTest("State: Hashing Consistency", async () => {
+        const context1 = { dependencies: { prod: ['a'], dev: ['b'] }, structure: 'file1', gitHistory: 'hash1' };
+        const context2 = { dependencies: { prod: ['a'], dev: ['b'] }, structure: 'file1', gitHistory: 'hash1' };
+
+        const hash1 = State.calculateProjectHash(context1);
+        const hash2 = State.calculateProjectHash(context2);
+
+        assert.strictEqual(hash1, hash2, "Hash should be deterministic for identical contexts");
+
+        const context3 = { ...context1, gitHistory: 'hash2' };
+        const hash3 = State.calculateProjectHash(context3);
+        assert.notStrictEqual(hash1, hash3, "Hash should change when context changes");
     });
 
     // --- 3. AI INTEGRATION TESTS (MOCKED) ---
